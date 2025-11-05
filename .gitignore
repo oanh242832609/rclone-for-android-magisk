@@ -1,0 +1,22 @@
+# Rclone binary (downloaded during installation)
+rclone
+
+# Build artifacts
+*.zip
+*.tar.gz
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Module build files
+*.zip.tmp
