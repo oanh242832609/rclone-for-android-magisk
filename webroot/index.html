@@ -435,7 +435,41 @@
             </div>
             
             <div class="section">
+                <h2>📝 Configuration Editor</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Edit rclone.conf</h3>
+                    <p style="margin-bottom: 15px; color: #718096;">View and edit your rclone configuration file</p>
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-secondary" onclick="loadConfig()" style="margin-right: 10px;">📖 Load Config</button>
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 Save Config</button>
+                    </div>
+                    <textarea id="configEditor" style="width: 100%; min-height: 300px; font-family: 'Courier New', monospace; padding: 15px; border: 2px solid #e2e8f0; border-radius: 5px; font-size: 13px;" placeholder="Load configuration to edit..."></textarea>
+                    <div id="configStatus" style="margin-top: 10px; padding: 10px; border-radius: 5px; display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="section">
                 <h2>☁️ Remote Management</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Quick Add Remote</h3>
+                    <p style="margin-bottom: 15px; color: #718096;">Choose a popular cloud provider preset:</p>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="addRemotePreset('gdrive')">📦 Google Drive</button>
+                        <button class="btn btn-primary" onclick="addRemotePreset('dropbox')">📦 Dropbox</button>
+                        <button class="btn btn-primary" onclick="addRemotePreset('onedrive')">📦 OneDrive</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button class="btn btn-secondary" onclick="addRemotePreset('mega')">📦 MEGA</button>
+                        <button class="btn btn-secondary" onclick="addRemotePreset('box')">📦 Box</button>
+                        <button class="btn btn-secondary" onclick="addRemotePreset('pcloud')">📦 pCloud</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button class="btn btn-warning" onclick="addRemotePreset('s3')">📦 Amazon S3</button>
+                        <button class="btn btn-warning" onclick="addRemotePreset('webdav')">📦 WebDAV</button>
+                        <button class="btn btn-warning" onclick="addRemotePreset('ftp')">📦 FTP/SFTP</button>
+                    </div>
+                </div>
+                
                 <div class="card">
                     <h3 style="color: #667eea; margin-bottom: 15px;">Configured Remotes</h3>
                     <div id="remotesList" style="min-height: 50px;">
@@ -446,12 +480,42 @@
                     </div>
                     <button class="btn btn-primary" onclick="refreshRemotes()" style="margin-top: 15px;">🔄 Refresh Remotes List</button>
                 </div>
-                
+            </div>
+            
+            <div class="section">
+                <h2>⚡ Command Center</h2>
                 <div class="card">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">Quick Setup</h3>
-                    <p style="margin-bottom: 15px;">To add a new remote, use the terminal command:</p>
-                    <div class="command-box">rclonew config</div>
-                    <p style="margin-top: 15px; color: #718096; font-size: 14px;">This will launch the interactive configuration wizard where you can add new cloud storage providers.</p>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Quick Commands</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="executeCmd('remount')">🔄 Remount</button>
+                        <button class="btn btn-warning" onclick="executeCmd('unmount')">⏹️ Unmount</button>
+                        <button class="btn btn-secondary" onclick="executeCmd('version')">ℹ️ Version</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="executeCmd('listremotes')">📋 List Remotes</button>
+                        <button class="btn btn-warning" onclick="executeCmd('mount-status')">📊 Mount Status</button>
+                        <button class="btn btn-secondary" onclick="executeCmd('purge')">🗑️ Purge Cache</button>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Command Output:</h4>
+                        <div id="commandOutput" style="background: #2d3748; color: #68d391; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 13px; min-height: 100px; max-height: 300px; overflow-y: auto; white-space: pre-wrap;">Ready to execute commands...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Logs & Status</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">View Logs</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="viewLogs('rclone')">📄 Rclone Logs</button>
+                        <button class="btn btn-secondary" onclick="viewLogs('mount')">📊 Mount Status</button>
+                        <button class="btn btn-warning" onclick="viewLogs('clear')">🗑️ Clear Display</button>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div id="logsOutput" style="background: #2d3748; color: #68d391; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 13px; min-height: 200px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">Log viewer ready...</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="autoRefreshLogs()" style="margin-top: 15px;" id="autoRefreshBtn">🔄 Auto-Refresh: OFF</button>
                 </div>
             </div>
             
@@ -775,6 +839,244 @@ FTP_ADDR=127.0.0.1:38763
                 loadRemotes();
                 showToast('Remotes list updated!');
             }, 500);
+        }
+        
+        // Config Editor Functions
+        function loadConfig() {
+            showToast('Loading configuration...');
+            const editor = document.getElementById('configEditor');
+            
+            if (checkKSU()) {
+                const config = executeCommand('cat /sdcard/.rclone/rclone.conf 2>&1');
+                if (config && !config.includes('No such file')) {
+                    editor.value = config;
+                    showConfigStatus('Configuration loaded successfully', 'success');
+                } else {
+                    editor.value = '# No configuration file found\n# Add your remotes here\n\n';
+                    showConfigStatus('No config file found. Create a new one by saving.', 'warning');
+                }
+            } else {
+                editor.value = '# KSU API not available\n# Configuration editing requires KernelSU WebRoot access\n';
+                showConfigStatus('KSU API required for config editing', 'error');
+            }
+        }
+        
+        function saveConfig() {
+            const editor = document.getElementById('configEditor');
+            const content = editor.value;
+            
+            if (!checkKSU()) {
+                showConfigStatus('KSU API required to save configuration', 'error');
+                return;
+            }
+            
+            showToast('Saving configuration...');
+            
+            // Escape single quotes and newlines for shell command
+            const escapedContent = content.replace(/'/g, "'\\''");
+            const cmd = `echo '${escapedContent}' > /sdcard/.rclone/rclone.conf 2>&1`;
+            const result = executeCommand(cmd);
+            
+            if (result !== null && !result.includes('Permission denied')) {
+                showConfigStatus('Configuration saved successfully!', 'success');
+                showToast('Config saved! Remount to apply changes.');
+                // Also copy to module config
+                executeCommand('cp /sdcard/.rclone/rclone.conf /data/adb/modules/com.piyushgarg.rclone/.config/rclone/rclone.conf 2>&1');
+            } else {
+                showConfigStatus('Failed to save configuration', 'error');
+            }
+        }
+        
+        function showConfigStatus(message, type) {
+            const statusDiv = document.getElementById('configStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = message;
+            
+            if (type === 'success') {
+                statusDiv.style.background = '#c6f6d5';
+                statusDiv.style.color = '#22543d';
+            } else if (type === 'error') {
+                statusDiv.style.background = '#fed7d7';
+                statusDiv.style.color = '#742a2a';
+            } else if (type === 'warning') {
+                statusDiv.style.background = '#fef3c7';
+                statusDiv.style.color = '#78350f';
+            }
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Remote Preset Functions
+        const presets = {
+            'gdrive': {
+                name: 'Google Drive',
+                type: 'drive',
+                template: '[gdrive]\ntype = drive\nscope = drive\n# Run: rclone config reconnect gdrive: to authorize\n'
+            },
+            'dropbox': {
+                name: 'Dropbox',
+                type: 'dropbox',
+                template: '[dropbox]\ntype = dropbox\n# Run: rclone config reconnect dropbox: to authorize\n'
+            },
+            'onedrive': {
+                name: 'OneDrive',
+                type: 'onedrive',
+                template: '[onedrive]\ntype = onedrive\n# Run: rclone config reconnect onedrive: to authorize\n'
+            },
+            'mega': {
+                name: 'MEGA',
+                type: 'mega',
+                template: '[mega]\ntype = mega\nuser = your@email.com\npass = your_encrypted_password\n# Run: rclone config to set password\n'
+            },
+            'box': {
+                name: 'Box',
+                type: 'box',
+                template: '[box]\ntype = box\n# Run: rclone config reconnect box: to authorize\n'
+            },
+            'pcloud': {
+                name: 'pCloud',
+                type: 'pcloud',
+                template: '[pcloud]\ntype = pcloud\nhostname = api.pcloud.com\n# Use eapi.pcloud.com for EU\n'
+            },
+            's3': {
+                name: 'Amazon S3',
+                type: 's3',
+                template: '[s3]\ntype = s3\nprovider = AWS\naccess_key_id = YOUR_ACCESS_KEY\nsecret_access_key = YOUR_SECRET_KEY\nregion = us-east-1\n'
+            },
+            'webdav': {
+                name: 'WebDAV',
+                type: 'webdav',
+                template: '[webdav]\ntype = webdav\nurl = https://your-webdav-server.com\nvendor = other\nuser = username\npass = encrypted_password\n'
+            },
+            'ftp': {
+                name: 'FTP/SFTP',
+                type: 'sftp',
+                template: '[sftp]\ntype = sftp\nhost = ftp.example.com\nuser = username\nport = 22\npass = encrypted_password\n'
+            }
+        };
+        
+        function addRemotePreset(presetKey) {
+            const preset = presets[presetKey];
+            if (!preset) return;
+            
+            const editor = document.getElementById('configEditor');
+            const currentConfig = editor.value || '';
+            
+            // Add preset to config
+            editor.value = currentConfig + '\n' + preset.template + '\n';
+            
+            showToast(`${preset.name} preset added! Edit and save the configuration.`);
+            showConfigStatus(`${preset.name} preset template added. Please update with your credentials.`, 'success');
+            
+            // Scroll to bottom
+            editor.scrollTop = editor.scrollHeight;
+        }
+        
+        // Command Execution Functions
+        function executeCmd(cmd) {
+            const outputDiv = document.getElementById('commandOutput');
+            outputDiv.textContent = `Executing ${cmd}...\n`;
+            
+            if (!checkKSU()) {
+                outputDiv.textContent += '\n❌ KSU API not available. Commands require KernelSU WebRoot access.';
+                return;
+            }
+            
+            let shellCmd = '';
+            switch(cmd) {
+                case 'remount':
+                    shellCmd = 'rclonew remount 2>&1';
+                    break;
+                case 'unmount':
+                    shellCmd = 'rclonew unmount 2>&1';
+                    break;
+                case 'version':
+                    shellCmd = 'rclone version 2>&1';
+                    break;
+                case 'listremotes':
+                    shellCmd = 'rclone listremotes 2>&1';
+                    break;
+                case 'mount-status':
+                    shellCmd = 'mount | grep cloud 2>&1';
+                    break;
+                case 'purge':
+                    shellCmd = 'rm -rf /data/rclone/cache/* 2>&1 && echo "Cache purged successfully"';
+                    break;
+                default:
+                    shellCmd = cmd;
+            }
+            
+            showToast(`Executing: ${cmd}...`);
+            
+            setTimeout(() => {
+                const result = executeCommand(shellCmd);
+                if (result !== null) {
+                    outputDiv.textContent = `$ ${shellCmd}\n\n${result}\n\n✅ Command completed`;
+                    showToast('Command executed!');
+                } else {
+                    outputDiv.textContent += '\n❌ Command execution failed';
+                }
+            }, 300);
+        }
+        
+        // Log Viewer Functions
+        let autoRefreshInterval = null;
+        
+        function viewLogs(logType) {
+            const logsDiv = document.getElementById('logsOutput');
+            
+            if (logType === 'clear') {
+                logsDiv.textContent = 'Log viewer ready...';
+                return;
+            }
+            
+            if (!checkKSU()) {
+                logsDiv.textContent = '❌ KSU API not available. Log viewing requires KernelSU WebRoot access.';
+                return;
+            }
+            
+            logsDiv.textContent = 'Loading logs...\n';
+            
+            let cmd = '';
+            switch(logType) {
+                case 'rclone':
+                    cmd = 'tail -n 100 /sdcard/.rclone/rclone.log 2>&1 || echo "No log file found"';
+                    break;
+                case 'mount':
+                    cmd = 'mount | grep -E "(cloud|rclone)" 2>&1 || echo "No mounts found"';
+                    break;
+            }
+            
+            setTimeout(() => {
+                const result = executeCommand(cmd);
+                if (result !== null) {
+                    logsDiv.textContent = `📋 ${logType.toUpperCase()} LOGS:\n${'='.repeat(60)}\n\n${result}\n\n${'='.repeat(60)}\nLast updated: ${new Date().toLocaleString()}`;
+                } else {
+                    logsDiv.textContent = '❌ Failed to load logs';
+                }
+            }, 300);
+        }
+        
+        function autoRefreshLogs() {
+            const btn = document.getElementById('autoRefreshBtn');
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                btn.textContent = '🔄 Auto-Refresh: OFF';
+                btn.className = 'btn btn-primary';
+                showToast('Auto-refresh disabled');
+            } else {
+                autoRefreshInterval = setInterval(() => {
+                    viewLogs('rclone');
+                }, 5000);
+                btn.textContent = '⏸️ Auto-Refresh: ON';
+                btn.className = 'btn btn-secondary';
+                showToast('Auto-refresh enabled (5s)');
+                viewLogs('rclone');
+            }
         }
         
         // Initialize on page load
