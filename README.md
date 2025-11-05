@@ -2,6 +2,8 @@
 
 A Magisk/KernelSU module for mounting cloud storage on Android using rclone.
 
+> **Документация на русском**: [README.ru.md](README.ru.md) | **Russian Documentation**: [README.ru.md](README.ru.md)
+
 ## ✨ Features
 
 - 🚀 **Automatic Beta Version Download**: Automatically downloads the latest beta version of rclone during installation
