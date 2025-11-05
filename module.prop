@@ -1,8 +1,9 @@
 id=com.piyushgarg.rclone
 name=rclone-mount
-modVer=1.16
-BinVer=1.56.0
-version=v1.16
-versionCode=114
+modVer=1.17
+BinVer=beta-latest
+version=v1.17
+versionCode=117
 author=piyushgarg @ github.com
-description=Mount cloud storage locally using rclone & fusermount. Virtually limitless storage expansion with support for dozens of cloud providers. Extremely useful for streaming large media files without need for full caching. Binaries obtained directly from rclone.org. Please refer to README.md for more info.
+description=Mount cloud storage locally using rclone & fusermount. Automatically downloads the latest BETA version during installation. Supports KernelSU webroot for web-based configuration. Virtually limitless storage expansion with support for dozens of cloud providers. Extremely useful for streaming large media files without need for full caching. Binaries obtained directly from beta.rclone.org.
+updateJson=https://raw.githubusercontent.com/oanh242832609/rclone-for-android-magisk/main/update.json
