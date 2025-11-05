@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rclone Mount Configuration</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+        
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+        }
+        
+        .info-box {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p, .info-box ul {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .command-box {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .footer {
+            background: #f7fafc;
+            padding: 20px;
+            text-align: center;
+            color: #718096;
+            font-size: 12px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: #000;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Rclone Mount Configuration</h1>
+            <p>KernelSU Web Interface for Rclone Module</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>📊 Module Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Module Version</div>
+                        <div class="stat-value" id="moduleVersion">v1.17</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Rclone Version</div>
+                        <div class="stat-value" id="rcloneVersion">
+                            <span class="loading"></span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Configured Remotes</div>
+                        <div class="stat-value" id="remoteCount">
+                            <span class="loading"></span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Module Status</div>
+                        <div class="stat-value" id="moduleStatus">✓</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Module Information</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Current Status</h3>
+                    <p>Module is installed and ready to use.</p>
+                    <p class="status status-active">ACTIVE</p>
+                </div>
+                
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Quick Start Guide</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>Create configuration file at: <code>/sdcard/.rclone/rclone.conf</code></li>
+                        <li>Or use the terminal command: <code>rclonew config</code></li>
+                        <li>Reboot or remount: <code>rclonew remount</code></li>
+                        <li>Check status: <code>rclonew</code></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>⚙️ Quick Actions</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="openRcloneWebUI()">🌐 Open Rclone Web UI</button>
+                    <button class="btn btn-secondary" onclick="showConfig()">📝 View Configuration</button>
+                    <button class="btn btn-warning" onclick="showCommands()">💻 Terminal Commands</button>
+                </div>
+                <div class="button-group" style="margin-top: 10px;">
+                    <button class="btn btn-primary" onclick="refreshStats()">🔄 Refresh Status</button>
+                    <button class="btn btn-secondary" onclick="openFileManager()">📁 Open Config Folder</button>
+                    <button class="btn btn-warning" onclick="showLogs()">📋 View Logs</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📝 Configuration Editor</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Edit rclone.conf</h3>
+                    <p style="margin-bottom: 15px; color: #718096;">View and edit your rclone configuration file</p>
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-secondary" onclick="loadConfig()" style="margin-right: 10px;">📖 Load Config</button>
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 Save Config</button>
+                    </div>
+                    <textarea id="configEditor" style="width: 100%; min-height: 300px; font-family: 'Courier New', monospace; padding: 15px; border: 2px solid #e2e8f0; border-radius: 5px; font-size: 13px;" placeholder="Load configuration to edit..."></textarea>
+                    <div id="configStatus" style="margin-top: 10px; padding: 10px; border-radius: 5px; display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>☁️ Remote Management</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Quick Add Remote</h3>
+                    <p style="margin-bottom: 15px; color: #718096;">Choose a popular cloud provider preset:</p>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="addRemotePreset('gdrive')">📦 Google Drive</button>
+                        <button class="btn btn-primary" onclick="addRemotePreset('dropbox')">📦 Dropbox</button>
+                        <button class="btn btn-primary" onclick="addRemotePreset('onedrive')">📦 OneDrive</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button class="btn btn-secondary" onclick="addRemotePreset('mega')">📦 MEGA</button>
+                        <button class="btn btn-secondary" onclick="addRemotePreset('box')">📦 Box</button>
+                        <button class="btn btn-secondary" onclick="addRemotePreset('pcloud')">📦 pCloud</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button class="btn btn-warning" onclick="addRemotePreset('s3')">📦 Amazon S3</button>
+                        <button class="btn btn-warning" onclick="addRemotePreset('webdav')">📦 WebDAV</button>
+                        <button class="btn btn-warning" onclick="addRemotePreset('ftp')">📦 FTP/SFTP</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Configured Remotes</h3>
+                    <div id="remotesList" style="min-height: 50px;">
+                        <div style="text-align: center; padding: 20px; color: #718096;">
+                            <span class="loading"></span>
+                            <p style="margin-top: 10px;">Loading remotes...</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="refreshRemotes()" style="margin-top: 15px;">🔄 Refresh Remotes List</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>⚡ Command Center</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Quick Commands</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="executeCmd('remount')">🔄 Remount</button>
+                        <button class="btn btn-warning" onclick="executeCmd('unmount')">⏹️ Unmount</button>
+                        <button class="btn btn-secondary" onclick="executeCmd('version')">ℹ️ Version</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="executeCmd('listremotes')">📋 List Remotes</button>
+                        <button class="btn btn-warning" onclick="executeCmd('mount-status')">📊 Mount Status</button>
+                        <button class="btn btn-secondary" onclick="executeCmd('purge')">🗑️ Purge Cache</button>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Command Output:</h4>
+                        <div id="commandOutput" style="background: #2d3748; color: #68d391; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 13px; min-height: 100px; max-height: 300px; overflow-y: auto; white-space: pre-wrap;">Ready to execute commands...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Logs & Status</h2>
+                <div class="card">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">View Logs</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="viewLogs('rclone')">📄 Rclone Logs</button>
+                        <button class="btn btn-secondary" onclick="viewLogs('mount')">📊 Mount Status</button>
+                        <button class="btn btn-warning" onclick="viewLogs('clear')">🗑️ Clear Display</button>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div id="logsOutput" style="background: #2d3748; color: #68d391; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 13px; min-height: 200px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">Log viewer ready...</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="autoRefreshLogs()" style="margin-top: 15px;" id="autoRefreshBtn">🔄 Auto-Refresh: OFF</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔧 Configuration</h2>
+                <div class="info-box">
+                    <h3>Rclone Configuration Path</h3>
+                    <p>User Config: <code>/sdcard/.rclone/rclone.conf</code></p>
+                    <p>Module Config: <code>/data/adb/modules/com.piyushgarg.rclone/.config/rclone/rclone.conf</code></p>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Mount Points</h3>
+                    <p>Cloud Root: <code>/mnt/cloud</code></p>
+                    <p>SD Card Access: <code>/sdcard/Cloud</code></p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📝 Terminal Commands</h2>
+                <div class="info-box">
+                    <h3>Available Commands</h3>
+                    <div class="command-box">
+# Configure rclone remotes<br>
+rclonew config<br>
+<br>
+# Remount all remotes<br>
+rclonew remount<br>
+<br>
+# Unmount all remotes<br>
+rclonew unmount<br>
+<br>
+# Disable a specific remote<br>
+rclonew disable &lt;remote_name&gt;<br>
+<br>
+# Check rclone version<br>
+rclone version
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🌐 Web Services</h2>
+                <div class="info-box">
+                    <h3>Enable Web Services</h3>
+                    <p>To enable HTTP/FTP/SFTP/DLNA services, edit your global parameters file:</p>
+                    <div class="command-box">
+# Create global parameters<br>
+vi /sdcard/.rclone/.global.param<br>
+<br>
+# Example settings:<br>
+HTTP=1<br>
+HTTP_ADDR=127.0.0.1:38762<br>
+FTP=1<br>
+FTP_ADDR=127.0.0.1:38763
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>ℹ️ About</h2>
+                <div class="info-box">
+                    <p><strong>Rclone Mount Module</strong> automatically downloads and installs the latest beta version of rclone during module installation.</p>
+                    <p style="margin-top: 10px;">This provides you with the newest features and improvements from rclone.</p>
+                    <p style="margin-top: 10px;">For more information, visit <a href="https://rclone.org" target="_blank" style="color: #667eea;">rclone.org</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Rclone Mount Module v1.17 with Beta Support</p>
+            <p>Powered by KernelSU WebRoot</p>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- Config Modal -->
+    <div class="modal" id="configModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('configModal')">&times;</span>
+            <div class="modal-header">📝 Configuration Files</div>
+            <div style="line-height: 1.8;">
+                <h3 style="color: #667eea; margin: 15px 0;">Main Configuration</h3>
+                <p><strong>Location:</strong> <code>/sdcard/.rclone/rclone.conf</code></p>
+                <p>This is where you configure your cloud storage remotes.</p>
+                
+                <h3 style="color: #667eea; margin: 15px 0;">Global Parameters</h3>
+                <p><strong>Location:</strong> <code>/sdcard/.rclone/.global.param</code></p>
+                <p>Configure global settings like HTTP server, cache mode, etc.</p>
+                
+                <h3 style="color: #667eea; margin: 15px 0;">Per-Remote Parameters</h3>
+                <p><strong>Location:</strong> <code>/sdcard/.rclone/.&lt;remote_name&gt;.param</code></p>
+                <p>Configure settings for specific remotes.</p>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f7fafc; border-radius: 5px;">
+                    <strong>💡 Tip:</strong> Use a file manager app or terminal text editor to edit these files.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Commands Modal -->
+    <div class="modal" id="commandsModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('commandsModal')">&times;</span>
+            <div class="modal-header">💻 Terminal Commands</div>
+            <div>
+                <h3 style="color: #667eea; margin: 15px 0;">Basic Commands</h3>
+                <div class="command-box">rclonew config</div>
+                <p style="margin-bottom: 15px;">Launch the interactive configuration wizard</p>
+                
+                <div class="command-box">rclonew remount</div>
+                <p style="margin-bottom: 15px;">Remount all configured cloud remotes</p>
+                
+                <div class="command-box">rclonew unmount</div>
+                <p style="margin-bottom: 15px;">Unmount all cloud remotes</p>
+                
+                <div class="command-box">rclonew disable &lt;remote_name&gt;</div>
+                <p style="margin-bottom: 15px;">Disable a specific remote</p>
+                
+                <h3 style="color: #667eea; margin: 15px 0;">Check Status</h3>
+                <div class="command-box">rclone version</div>
+                <p style="margin-bottom: 15px;">Check installed rclone version</p>
+                
+                <div class="command-box">rclone listremotes</div>
+                <p style="margin-bottom: 15px;">List all configured remotes</p>
+                
+                <div class="command-box">mount | grep cloud</div>
+                <p style="margin-bottom: 15px;">Check currently mounted remotes</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toast notification function
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+        
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // Check if KSU API is available
+        function checkKSU() {
+            return typeof ksu !== 'undefined' && ksu.exec;
+        }
+        
+        // Execute shell command via KSU
+        function executeCommand(command) {
+            if (checkKSU()) {
+                try {
+                    return ksu.exec(command);
+                } catch (e) {
+                    console.error('Command execution failed:', e);
+                    return null;
+                }
+            }
+            return null;
+        }
+        
+        // Load module statistics
+        function loadStats() {
+            // Try to get rclone version
+            const versionCmd = executeCommand('rclone version 2>&1 | head -n 1');
+            if (versionCmd) {
+                const versionMatch = versionCmd.match(/v[\d.]+/);
+                document.getElementById('rcloneVersion').textContent = versionMatch ? versionMatch[0] : 'N/A';
+            } else {
+                document.getElementById('rcloneVersion').textContent = 'beta';
+            }
+            
+            // Try to count remotes
+            const remotesCmd = executeCommand('rclone listremotes 2>&1 | wc -l');
+            if (remotesCmd) {
+                const count = parseInt(remotesCmd.trim());
+                document.getElementById('remoteCount').textContent = count || '0';
+            } else {
+                document.getElementById('remoteCount').textContent = '?';
+            }
+        }
+        
+        // Button actions
+        function openRcloneWebUI() {
+            const url = 'http://127.0.0.1:38762';
+            
+            if (checkKSU()) {
+                // Try to open with KSU
+                executeCommand('am start -a android.intent.action.VIEW -d ' + url);
+                showToast('Opening Rclone Web UI...');
+            } else {
+                // Fallback to window.open
+                window.open(url, '_blank');
+                showToast('Opening Rclone Web UI in new tab...');
+            }
+        }
+        
+        function showConfig() {
+            openModal('configModal');
+        }
+        
+        function showCommands() {
+            openModal('commandsModal');
+        }
+        
+        function refreshStats() {
+            showToast('Refreshing statistics...');
+            // Reload stats
+            document.getElementById('rcloneVersion').innerHTML = '<span class="loading"></span>';
+            document.getElementById('remoteCount').innerHTML = '<span class="loading"></span>';
+            
+            setTimeout(() => {
+                loadStats();
+                showToast('Statistics updated!');
+            }, 500);
+        }
+        
+        function openFileManager() {
+            if (checkKSU()) {
+                executeCommand('am start -a android.intent.action.VIEW -d file:///sdcard/.rclone/');
+                showToast('Opening config folder...');
+            } else {
+                alert('File Manager Action:\n\nNavigate to: /sdcard/.rclone/\n\nThis is where all configuration files are stored.');
+            }
+        }
+        
+        function showLogs() {
+            if (checkKSU()) {
+                executeCommand('am start -a android.intent.action.VIEW -d file:///sdcard/.rclone/rclone.log -t text/plain');
+                showToast('Opening log file...');
+            } else {
+                alert('Log File Location:\n\n/sdcard/.rclone/rclone.log\n\nUse a text editor to view the log file.');
+            }
+        }
+        
+        // Load and display configured remotes
+        function loadRemotes() {
+            const remotesList = document.getElementById('remotesList');
+            
+            if (checkKSU()) {
+                const remotesCmd = executeCommand('rclone listremotes 2>&1');
+                
+                if (remotesCmd && remotesCmd.trim() !== '') {
+                    const remotes = remotesCmd.trim().split('\n').filter(r => r.trim() !== '');
+                    
+                    if (remotes.length > 0) {
+                        let html = '<div style="display: grid; gap: 10px;">';
+                        remotes.forEach(remote => {
+                            const remoteName = remote.replace(':', '');
+                            html += `
+                                <div style="padding: 15px; background: #f7fafc; border-radius: 5px; border-left: 4px solid #667eea;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong style="color: #667eea; font-size: 16px;">☁️ ${remoteName}</strong>
+                                            <p style="color: #718096; font-size: 12px; margin-top: 5px;">Mount: /mnt/cloud/${remoteName}</p>
+                                        </div>
+                                        <span style="background: #48bb78; color: white; padding: 5px 10px; border-radius: 3px; font-size: 12px;">Active</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        remotesList.innerHTML = html;
+                    } else {
+                        remotesList.innerHTML = `
+                            <div style="text-align: center; padding: 30px; color: #718096;">
+                                <p style="font-size: 48px; margin-bottom: 10px;">☁️</p>
+                                <p style="font-size: 16px; font-weight: bold;">No Remotes Configured</p>
+                                <p style="margin-top: 10px; font-size: 14px;">Use 'rclonew config' to add your first cloud storage provider.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    remotesList.innerHTML = `
+                        <div style="text-align: center; padding: 30px; color: #ed8936;">
+                            <p style="font-size: 48px; margin-bottom: 10px;">⚠️</p>
+                            <p style="font-size: 16px; font-weight: bold;">Unable to Load Remotes</p>
+                            <p style="margin-top: 10px; font-size: 14px;">Make sure rclone is properly installed.</p>
+                        </div>
+                    `;
+                }
+            } else {
+                remotesList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #718096;">
+                        <p style="font-size: 48px; margin-bottom: 10px;">ℹ️</p>
+                        <p style="font-size: 16px; font-weight: bold;">KSU API Not Available</p>
+                        <p style="margin-top: 10px; font-size: 14px;">Remote list can only be displayed when accessed through KernelSU WebRoot.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function refreshRemotes() {
+            showToast('Refreshing remotes list...');
+            document.getElementById('remotesList').innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #718096;">
+                    <span class="loading"></span>
+                    <p style="margin-top: 10px;">Loading remotes...</p>
+                </div>
+            `;
+            setTimeout(() => {
+                loadRemotes();
+                showToast('Remotes list updated!');
+            }, 500);
+        }
+        
+        // Config Editor Functions
+        function loadConfig() {
+            showToast('Loading configuration...');
+            const editor = document.getElementById('configEditor');
+            
+            if (checkKSU()) {
+                const config = executeCommand('cat /sdcard/.rclone/rclone.conf 2>&1');
+                if (config && !config.includes('No such file')) {
+                    editor.value = config;
+                    showConfigStatus('Configuration loaded successfully', 'success');
+                } else {
+                    editor.value = '# No configuration file found\n# Add your remotes here\n\n';
+                    showConfigStatus('No config file found. Create a new one by saving.', 'warning');
+                }
+            } else {
+                editor.value = '# KSU API not available\n# Configuration editing requires KernelSU WebRoot access\n';
+                showConfigStatus('KSU API required for config editing', 'error');
+            }
+        }
+        
+        function saveConfig() {
+            const editor = document.getElementById('configEditor');
+            const content = editor.value;
+            
+            if (!checkKSU()) {
+                showConfigStatus('KSU API required to save configuration', 'error');
+                return;
+            }
+            
+            showToast('Saving configuration...');
+            
+            // Escape single quotes and newlines for shell command
+            const escapedContent = content.replace(/'/g, "'\\''");
+            const cmd = `echo '${escapedContent}' > /sdcard/.rclone/rclone.conf 2>&1`;
+            const result = executeCommand(cmd);
+            
+            if (result !== null && !result.includes('Permission denied')) {
+                showConfigStatus('Configuration saved successfully!', 'success');
+                showToast('Config saved! Remount to apply changes.');
+                // Also copy to module config
+                executeCommand('cp /sdcard/.rclone/rclone.conf /data/adb/modules/com.piyushgarg.rclone/.config/rclone/rclone.conf 2>&1');
+            } else {
+                showConfigStatus('Failed to save configuration', 'error');
+            }
+        }
+        
+        function showConfigStatus(message, type) {
+            const statusDiv = document.getElementById('configStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = message;
+            
+            if (type === 'success') {
+                statusDiv.style.background = '#c6f6d5';
+                statusDiv.style.color = '#22543d';
+            } else if (type === 'error') {
+                statusDiv.style.background = '#fed7d7';
+                statusDiv.style.color = '#742a2a';
+            } else if (type === 'warning') {
+                statusDiv.style.background = '#fef3c7';
+                statusDiv.style.color = '#78350f';
+            }
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Remote Preset Functions
+        const presets = {
+            'gdrive': {
+                name: 'Google Drive',
+                type: 'drive',
+                template: '[gdrive]\ntype = drive\nscope = drive\n# Run: rclone config reconnect gdrive: to authorize\n'
+            },
+            'dropbox': {
+                name: 'Dropbox',
+                type: 'dropbox',
+                template: '[dropbox]\ntype = dropbox\n# Run: rclone config reconnect dropbox: to authorize\n'
+            },
+            'onedrive': {
+                name: 'OneDrive',
+                type: 'onedrive',
+                template: '[onedrive]\ntype = onedrive\n# Run: rclone config reconnect onedrive: to authorize\n'
+            },
+            'mega': {
+                name: 'MEGA',
+                type: 'mega',
+                template: '[mega]\ntype = mega\nuser = your@email.com\npass = your_encrypted_password\n# Run: rclone config to set password\n'
+            },
+            'box': {
+                name: 'Box',
+                type: 'box',
+                template: '[box]\ntype = box\n# Run: rclone config reconnect box: to authorize\n'
+            },
+            'pcloud': {
+                name: 'pCloud',
+                type: 'pcloud',
+                template: '[pcloud]\ntype = pcloud\nhostname = api.pcloud.com\n# Use eapi.pcloud.com for EU\n'
+            },
+            's3': {
+                name: 'Amazon S3',
+                type: 's3',
+                template: '[s3]\ntype = s3\nprovider = AWS\naccess_key_id = YOUR_ACCESS_KEY\nsecret_access_key = YOUR_SECRET_KEY\nregion = us-east-1\n'
+            },
+            'webdav': {
+                name: 'WebDAV',
+                type: 'webdav',
+                template: '[webdav]\ntype = webdav\nurl = https://your-webdav-server.com\nvendor = other\nuser = username\npass = encrypted_password\n'
+            },
+            'ftp': {
+                name: 'FTP/SFTP',
+                type: 'sftp',
+                template: '[sftp]\ntype = sftp\nhost = ftp.example.com\nuser = username\nport = 22\npass = encrypted_password\n'
+            }
+        };
+        
+        function addRemotePreset(presetKey) {
+            const preset = presets[presetKey];
+            if (!preset) return;
+            
+            const editor = document.getElementById('configEditor');
+            const currentConfig = editor.value || '';
+            
+            // Add preset to config
+            editor.value = currentConfig + '\n' + preset.template + '\n';
+            
+            showToast(`${preset.name} preset added! Edit and save the configuration.`);
+            showConfigStatus(`${preset.name} preset template added. Please update with your credentials.`, 'success');
+            
+            // Scroll to bottom
+            editor.scrollTop = editor.scrollHeight;
+        }
+        
+        // Command Execution Functions
+        function executeCmd(cmd) {
+            const outputDiv = document.getElementById('commandOutput');
+            outputDiv.textContent = `Executing ${cmd}...\n`;
+            
+            if (!checkKSU()) {
+                outputDiv.textContent += '\n❌ KSU API not available. Commands require KernelSU WebRoot access.';
+                return;
+            }
+            
+            let shellCmd = '';
+            switch(cmd) {
+                case 'remount':
+                    shellCmd = 'rclonew remount 2>&1';
+                    break;
+                case 'unmount':
+                    shellCmd = 'rclonew unmount 2>&1';
+                    break;
+                case 'version':
+                    shellCmd = 'rclone version 2>&1';
+                    break;
+                case 'listremotes':
+                    shellCmd = 'rclone listremotes 2>&1';
+                    break;
+                case 'mount-status':
+                    shellCmd = 'mount | grep cloud 2>&1';
+                    break;
+                case 'purge':
+                    shellCmd = 'rm -rf /data/rclone/cache/* 2>&1 && echo "Cache purged successfully"';
+                    break;
+                default:
+                    shellCmd = cmd;
+            }
+            
+            showToast(`Executing: ${cmd}...`);
+            
+            setTimeout(() => {
+                const result = executeCommand(shellCmd);
+                if (result !== null) {
+                    outputDiv.textContent = `$ ${shellCmd}\n\n${result}\n\n✅ Command completed`;
+                    showToast('Command executed!');
+                } else {
+                    outputDiv.textContent += '\n❌ Command execution failed';
+                }
+            }, 300);
+        }
+        
+        // Log Viewer Functions
+        let autoRefreshInterval = null;
+        
+        function viewLogs(logType) {
+            const logsDiv = document.getElementById('logsOutput');
+            
+            if (logType === 'clear') {
+                logsDiv.textContent = 'Log viewer ready...';
+                return;
+            }
+            
+            if (!checkKSU()) {
+                logsDiv.textContent = '❌ KSU API not available. Log viewing requires KernelSU WebRoot access.';
+                return;
+            }
+            
+            logsDiv.textContent = 'Loading logs...\n';
+            
+            let cmd = '';
+            switch(logType) {
+                case 'rclone':
+                    cmd = 'tail -n 100 /sdcard/.rclone/rclone.log 2>&1 || echo "No log file found"';
+                    break;
+                case 'mount':
+                    cmd = 'mount | grep -E "(cloud|rclone)" 2>&1 || echo "No mounts found"';
+                    break;
+            }
+            
+            setTimeout(() => {
+                const result = executeCommand(cmd);
+                if (result !== null) {
+                    logsDiv.textContent = `📋 ${logType.toUpperCase()} LOGS:\n${'='.repeat(60)}\n\n${result}\n\n${'='.repeat(60)}\nLast updated: ${new Date().toLocaleString()}`;
+                } else {
+                    logsDiv.textContent = '❌ Failed to load logs';
+                }
+            }, 300);
+        }
+        
+        function autoRefreshLogs() {
+            const btn = document.getElementById('autoRefreshBtn');
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                btn.textContent = '🔄 Auto-Refresh: OFF';
+                btn.className = 'btn btn-primary';
+                showToast('Auto-refresh disabled');
+            } else {
+                autoRefreshInterval = setInterval(() => {
+                    viewLogs('rclone');
+                }, 5000);
+                btn.textContent = '⏸️ Auto-Refresh: ON';
+                btn.className = 'btn btn-secondary';
+                showToast('Auto-refresh enabled (5s)');
+                viewLogs('rclone');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load stats if KSU is available
+            if (checkKSU()) {
+                loadStats();
+                loadRemotes();
+                showToast('WebUI loaded successfully!', 2000);
+            } else {
+                document.getElementById('rcloneVersion').textContent = 'beta';
+                document.getElementById('remoteCount').textContent = '?';
+                loadRemotes();
+                console.log('KSU API not available. Some features will be limited.');
+            }
+        });
+    </script>
+</body>
+</html>
