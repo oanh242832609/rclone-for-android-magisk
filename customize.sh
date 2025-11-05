@@ -48,8 +48,8 @@ on_install() {
   RCLONE_ZIP="${DOWNLOAD_DIR}/rclone-beta-latest.zip"
   
   # Download rclone
-  if curl -L -o "$RCLONE_ZIP" "$RCLONE_URL" 2>&1 | grep -q "curl:"; then
-    ui_print "! Failed to download rclone, trying with wget..."
+  if ! curl -L -o "$RCLONE_ZIP" "$RCLONE_URL" 2>&1; then
+    ui_print "! curl failed, trying with wget..."
     if ! wget -O "$RCLONE_ZIP" "$RCLONE_URL" 2>&1; then
       ui_print "! Download failed. Please check your internet connection."
       exit 1
@@ -75,7 +75,13 @@ on_install() {
   
   # Get rclone version
   RCLONE_VERSION=$("$MODPATH/rclone" version 2>&1 | head -n 1 | awk '{print $2}')
-  ui_print "- Installed rclone version: $RCLONE_VERSION"
+  
+  if [ -z "$RCLONE_VERSION" ]; then
+    ui_print "! Warning: Could not determine rclone version"
+    RCLONE_VERSION="beta-latest"
+  else
+    ui_print "- Installed rclone version: $RCLONE_VERSION"
+  fi
   
   # Update module.prop with new version
   sed -i "s/^BinVer=.*/BinVer=$RCLONE_VERSION/" "$MODPATH/module.prop"

@@ -284,7 +284,7 @@ FTP_ADDR=127.0.0.1:38763
         </div>
         
         <div class="footer">
-            <p>Rclone Mount Module v1.16+ with Beta Support</p>
+            <p>Rclone Mount Module v1.17 with Beta Support</p>
             <p>Powered by KernelSU WebRoot</p>
         </div>
     </div>
@@ -292,7 +292,9 @@ FTP_ADDR=127.0.0.1:38763
     <script>
         function openRcloneWebUI() {
             // Rclone web UI is typically at port 38762 if HTTP service is enabled
-            window.open('http://127.0.0.1:38762', '_blank');
+            var url = 'http://127.0.0.1:38762';
+            alert('Opening Rclone Web UI...\n\nNote: HTTP service must be enabled in your configuration.\nSet HTTP=1 in /sdcard/.rclone/.global.param\n\nTrying to open: ' + url);
+            window.open(url, '_blank');
         }
         
         function showConfig() {
